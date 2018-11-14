@@ -3,7 +3,7 @@ from typing import Optional
 
 # This runs on first import
 with open('wiki_wc.pickle', 'rb') as f:
-    wc = pickle.dump(f)
+    wc = pickle.load(f)
 
 
 def get_article_len(title: str) -> Optional[int]:
