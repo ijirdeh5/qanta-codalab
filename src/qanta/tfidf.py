@@ -16,7 +16,7 @@ from qanta.dataset import QuizBowlDataset
 MODEL_PATH = 'tfidf.pickle'
 BUZZ_NUM_GUESSES = 10
 BUZZ_THRESHOLD = 0.3
-
+ALPHA = 5
 
 def guess_and_buzz(model, question_text) -> Tuple[str, bool]:
     guesses = model.guess([question_text], BUZZ_NUM_GUESSES)[0]
@@ -68,8 +68,13 @@ class TfidfGuesser:
         guesses = []
         for i in range(len(questions)):
             idxs = guess_indices[i]
+
+            #changing guess probabilities by obscurity
+            #currently using inverse function, may change later
+            guess_matrix[i,j] += ALPHA/obscurity(self.i.to_ans[j])
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
 
+        guesses.sort(key=(lambda x: x[1]))
         return guesses
 
     def save(self):
