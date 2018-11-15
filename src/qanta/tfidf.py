@@ -5,7 +5,7 @@ import json
 from os import path
 
 
-from obscurity import obscurity
+#from obscurity import obscurity
 import click
 from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
