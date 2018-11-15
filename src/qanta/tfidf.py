@@ -74,7 +74,7 @@ class TfidfGuesser:
 
             #changing guess probabilities by obscurity
             #currently using inverse function, may change
-            guess_matrix[i,j] += ALPHA/obscurity.get_log_wc((self.i.to_ans[j]))
+            guess_matrix[i,j] += ALPHA/obscurity.get_log_wc((self.i.to_ans[j])) for j in idxs
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
 
         guesses.sort(key=(lambda x: x[1]))
