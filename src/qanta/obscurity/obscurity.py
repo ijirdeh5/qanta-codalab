@@ -1,8 +1,14 @@
+import os
 import pickle
 import numpy as np
 from typing import Optional
 
+
 # This runs on first import
+# fix path stuff
+if os.getcwd().split('/')[-1] != 'obscurity':
+    os.chdir('obscurity')
+
 with open('wiki_wc.pickle', 'rb') as f:
     wc = pickle.load(f)
 
