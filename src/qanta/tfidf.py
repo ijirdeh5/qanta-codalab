@@ -4,6 +4,8 @@ import pickle
 import json
 from os import path
 
+
+from obscurity import obscurity
 import click
 from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -72,7 +74,7 @@ class TfidfGuesser:
 
             #changing guess probabilities by obscurity
             #currently using inverse function, may change
-            guess_matrix[i,j] += ALPHA/np.log(obscurity(self.i.to_ans[j]))
+            guess_matrix[i,j] += ALPHA/obscurity.get_log_wc((self.i.to_ans[j]))
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
 
         guesses.sort(key=(lambda x: x[1]))
