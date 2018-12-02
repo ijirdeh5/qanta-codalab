@@ -18,7 +18,7 @@ MODEL_PATH = 'tfidf.pickle'
 BUZZ_NUM_GUESSES = 10
 BUZZ_THRESHOLD = 0.3
 ALPHA = 2
-
+TOP_K = 5
 
 def guess_and_buzz(model, question_text) -> Tuple[str, bool]:
     guesses = model.guess([question_text], BUZZ_NUM_GUESSES)[0]
@@ -64,6 +64,8 @@ class TfidfGuesser:
         self.tfidf_matrix = self.tfidf_vectorizer.transform(x_array)
 
     def guess(self, questions: List[str], max_n_guesses: Optional[int]) -> List[List[Tuple[str, float]]]:
+        print("FIRST QUESTION")
+        print(questions[0])
         representations = self.tfidf_vectorizer.transform(questions)
         guess_matrix = self.tfidf_matrix.dot(representations.T).T
         guess_indices = (-guess_matrix).toarray().argsort(axis=1)[:, 0:max_n_guesses]
@@ -73,10 +75,11 @@ class TfidfGuesser:
 
             #changing guess probabilities by obscurity
             #currently using inverse function, may change
-            for j in idxs:
+            for j in idxs[:TOP_K]:
                 log_wc = obscurity.get_log_wc((self.i_to_ans[j]))
                 if log_wc:
-                    guess_matrix[i,j] += ALPHA/log_wc
+                    c = questions[i].count('.')
+                    guess_matrix[i,j] += max([0, c/3.5 - 0.65])*ALPHA/log_wc
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
 
         guesses.sort(key=(lambda x: x[1]))
