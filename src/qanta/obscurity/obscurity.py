@@ -3,15 +3,8 @@ import pickle
 import numpy as np
 from typing import Optional
 
-
-# This runs on first import
-# fix path stuff
-if os.getcwd().split('/')[-1] != 'obscurity':
-    os.chdir('obscurity')
-
-with open('wiki_wc.pickle', 'rb') as f:
+with open('qanta/obscurity/wiki_wc.pickle', 'rb') as f:
     wc = pickle.load(f)
-
 
 def get_article_len(title: str) -> Optional[int]:
     """"

@@ -4,8 +4,6 @@ import pickle
 import json
 from os import path
 
-
-#from obscurity import obscurity
 import click
 from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -14,12 +12,13 @@ from flask import Flask, jsonify, request
 import numpy as np
 from qanta import util
 from qanta.dataset import QuizBowlDataset
-
+from qanta.obscurity import obscurity
 
 MODEL_PATH = 'tfidf.pickle'
 BUZZ_NUM_GUESSES = 10
 BUZZ_THRESHOLD = 0.3
 ALPHA = 2
+
 
 def guess_and_buzz(model, question_text) -> Tuple[str, bool]:
     guesses = model.guess([question_text], BUZZ_NUM_GUESSES)[0]
@@ -74,7 +73,10 @@ class TfidfGuesser:
 
             #changing guess probabilities by obscurity
             #currently using inverse function, may change
-            guess_matrix[i,j] += ALPHA/obscurity.get_log_wc((self.i.to_ans[j])) for j in idxs
+            for j in idxs:
+                log_wc = obscurity.get_log_wc((self.i_to_ans[j]))
+                if log_wc:
+                    guess_matrix[i,j] += ALPHA/log_wc
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
 
         guesses.sort(key=(lambda x: x[1]))
