@@ -82,7 +82,7 @@ class TfidfGuesser:
                     guess_matrix[i,j] += max([0, c/3.5 - 0.65])*ALPHA/log_wc
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
 
-        guesses.sort(key=(lambda x: x[1]))
+        guesses.sort(key=(lambda x: -x[1]))
         return guesses
 
     def save(self):
