@@ -64,8 +64,6 @@ class TfidfGuesser:
         self.tfidf_matrix = self.tfidf_vectorizer.transform(x_array)
 
     def guess(self, questions: List[str], max_n_guesses: Optional[int]) -> List[List[Tuple[str, float]]]:
-        print("FIRST QUESTION")
-        print(questions[0])
         representations = self.tfidf_vectorizer.transform(questions)
         guess_matrix = self.tfidf_matrix.dot(representations.T).T
         guess_indices = (-guess_matrix).toarray().argsort(axis=1)[:, 0:max_n_guesses]
