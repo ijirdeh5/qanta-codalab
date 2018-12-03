@@ -16,9 +16,9 @@ from qanta.obscurity import obscurity
 
 MODEL_PATH = 'tfidf.pickle'
 BUZZ_NUM_GUESSES = 10
-BUZZ_THRESHOLD = 0.3
-ALPHA = 2
-TOP_K = 5
+BUZZ_THRESHOLD = 0.35
+ALPHA = 0.4
+TOP_K = 20
 
 def guess_and_buzz(model, question_text) -> Tuple[str, bool]:
     guesses = model.guess([question_text], BUZZ_NUM_GUESSES)[0]
