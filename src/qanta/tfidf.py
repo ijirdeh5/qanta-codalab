@@ -67,7 +67,7 @@ class TfidfGuesser:
         representations = self.tfidf_vectorizer.transform(questions)
         guess_matrix = self.tfidf_matrix.dot(representations.T).T
         guess_indices = (-guess_matrix).toarray().argsort(axis=1)[:, 0:max_n_guesses]
-        guesses = []
+        guesses: List[List[Tuple]] = []
         for i in range(len(questions)):
             idxs = guess_indices[i]
 
@@ -80,7 +80,9 @@ class TfidfGuesser:
                     guess_matrix[i,j] += max([0, c/3.5 - 0.65])*ALPHA/log_wc
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
 
-        guesses.sort(key=(lambda x: -x[1]))
+        for guess_list in guesses:
+            guess_list.sort(key=(lambda x: -(x[1])))
+
         return guesses
 
     def save(self):
