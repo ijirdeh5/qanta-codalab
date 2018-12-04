@@ -13,6 +13,7 @@ import numpy as np
 from qanta import util
 from qanta.dataset import QuizBowlDataset
 from qanta.obscurity import obscurity
+from qanta.obscurity import page_rank
 
 MODEL_PATH = 'tfidf.pickle'
 BUZZ_NUM_GUESSES = 10
@@ -42,6 +43,7 @@ class TfidfGuesser:
         self.tfidf_vectorizer = None
         self.tfidf_matrix = None
         self.i_to_ans = None
+        self.previous_guesses = {}
 
     def train(self, training_data) -> None:
         questions = training_data[0]
@@ -56,6 +58,7 @@ class TfidfGuesser:
         for ans, doc in answer_docs.items():
             x_array.append(doc)
             y_array.append(ans)
+            self.previous_guesses[ans] = self.previous_guesses.get(ans, 0) + 1
 
         self.i_to_ans = {i: ans for i, ans in enumerate(y_array)}
         self.tfidf_vectorizer = TfidfVectorizer(
@@ -75,9 +78,12 @@ class TfidfGuesser:
             #currently using inverse function, may change
             for j in idxs[:TOP_K]:
                 log_wc = obscurity.get_log_wc((self.i_to_ans[j]))
-                if log_wc:
+                page_count = page_rank.get_log_rank((self.i_to_ans[j]))
+                if log_wc and page_count:
+                    obscurity_index = (1/2)*log_wc + (1/2)*page_count
+                if log_wc and page_count:
                     c = questions[i].count('.')
-                    guess_matrix[i,j] += max([0, c/3.5 - 0.65])*ALPHA/log_wc
+                    guess_matrix[i,j] += (max([0, c/3.5 - 0.65])*ALPHA/obscurity_index)
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
 
         for guess_list in guesses:
