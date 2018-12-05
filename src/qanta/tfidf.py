@@ -22,6 +22,8 @@ BUZZ_THRESHOLD = 0.35
 ALPHA = 0.4
 TOP_K = 20
 
+prev_guesses = {}
+
 def guess_and_buzz(model, question_text) -> Tuple[str, bool]:
     guesses = model.guess([question_text], BUZZ_NUM_GUESSES)[0]
     scores = [guess[1] for guess in guesses]
@@ -60,6 +62,9 @@ class TfidfGuesser:
             x_array.append(doc)
             y_array.append(ans)
             self.previous_guesses[ans] = self.previous_guesses.get(ans, 0) + 1
+
+        global prev_guesses
+        prev_guesses = self.previous_guesses.copy()
 
         self.i_to_ans = {i: ans for i, ans in enumerate(y_array)}
         self.tfidf_vectorizer = TfidfVectorizer(
@@ -108,6 +113,7 @@ class TfidfGuesser:
                 'tfidf_matrix': self.tfidf_matrix
             }, f)
 
+
     @classmethod
     def load(cls):
         with open(MODEL_PATH, 'rb') as f:
@@ -145,7 +151,9 @@ def create_app(enable_batch=True):
             for guess, buzz in batch_guess_and_buzz(tfidf_guesser, questions)
         ])
 
-
+    with open('previous_guesses.pickle', 'wb') as handle:
+        pickle.dump(prev_guesses, handle)
+    
     return app
 
 
