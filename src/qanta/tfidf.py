@@ -24,6 +24,10 @@ BETA = 0.07
 GAMMA = 0.03
 TOP_K = 20
 
+WC_FACTOR_ENABLED = True
+PREV_OCC_FACTOR_ENABLED = True
+PAGERANK_FACTOR_ENABLED = True
+
 prev_guesses = {}
 
 def guess_and_buzz(model, question_text) -> Tuple[str, bool]:
