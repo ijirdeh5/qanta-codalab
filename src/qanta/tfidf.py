@@ -151,9 +151,6 @@ def create_app(enable_batch=True):
             for guess, buzz in batch_guess_and_buzz(tfidf_guesser, questions)
         ])
 
-    with open('previous_guesses.pickle', 'wb') as handle:
-        pickle.dump(prev_guesses, handle)
-    
     return app
 
 
