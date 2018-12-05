@@ -84,20 +84,30 @@ class TfidfGuesser:
             #currently using inverse function, may change
             for j in idxs[:TOP_K]:
                 log_wc = obscurity.get_log_wc((self.i_to_ans[j]))
-                page_count = page_rank.get_log_rank((self.i_to_ans[j]))
+                #page_count = page_rank.get_log_rank((self.i_to_ans[j]))
                 prev_guess_count = 0
-                if (self.i_to_ans[j]) in self.previous_guesses:
-                    prev_guess_count = self.previous_guesses[(self.i_to_ans[j])]
+                #if (self.i_to_ans[j]) in self.previous_guesses:
+                #    prev_guess_count = self.previous_guesses[(self.i_to_ans[j])]
 
-                if log_wc and prev_guess_count > 0:# and page_count:
-                    obscurity_index = (1/3.0) * log_wc + (2/3.0) * np.log(prev_guess_count)
-                elif log_wc:
-                    obscurity_index = log_wc
-                elif prev_guess_count > 0:
-                    obscurity_index = np.log(prev_guess_count)
-                if log_wc or prev_guess_count > 0:
+                #obscurity_index = 0
+                #if log_wc:
+                #    obscurity_index += log_wc
+                #if prev_guess_count > 0:
+                #    obscurity_index += np.log(prev_guess_count)
+                #else:
+
+
+                #if log_wc and prev_guess_count > 0:# and page_count:
+                #    obscurity_index = log_wc#(1/3.0) * log_wc + (2/3.0) * np.log(prev_guess_count)
+                #elif log_wc:
+                #    obscurity_index = log_wc
+                #elif prev_guess_count > 0:
+                #    obscurity_index = np.log(prev_guess_count)
+                #else:
+                #   obscurity_index = 1e9
+                if log_wc: #or prev_guess_count > 0:
                     c = questions[i].count('.')
-                    guess_matrix[i,j] += (max([0, c/3.5 - 0.65])*ALPHA/obscurity_index)
+                    guess_matrix[i,j] += (max([0, c/3.5 - 0.65])*ALPHA/log_wc)
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
 
         for guess_list in guesses:

@@ -18,5 +18,19 @@ def get_log_rank(title: str) -> Optional[float]:
     else:
         return None
 
+def get_rank(title: str) -> Optional[float]:
+    if title in article_index:
+        return rank[article_index[title]]
+    else:
+        return None
+
+
+MIN_RANK = np.min(rank)
+LOG_MIN_RANK = np.log(MIN_RANK)
+
+
+def is_min_rank(title: str) -> bool:
+    l_r = get_log_rank(title)
+    return np.abs(l_r - LOG_MIN_RANK) < 1e-5 if l_r is not None else False
 
 
