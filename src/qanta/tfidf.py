@@ -19,7 +19,9 @@ from qanta.obscurity import page_rank
 MODEL_PATH = 'tfidf.pickle'
 BUZZ_NUM_GUESSES = 10
 BUZZ_THRESHOLD = 0.35
-ALPHA = 0.4
+ALPHA = 0.25
+BETA = 0.07
+GAMMA = 0.03
 TOP_K = 20
 
 prev_guesses = {}
@@ -46,7 +48,7 @@ class TfidfGuesser:
         self.tfidf_vectorizer = None
         self.tfidf_matrix = None
         self.i_to_ans = None
-        self.previous_guesses = {}
+        self.previous_guesses = defaultdict(int)
 
     def train(self, training_data) -> None:
         questions = training_data[0]
@@ -84,30 +86,18 @@ class TfidfGuesser:
             #currently using inverse function, may change
             for j in idxs[:TOP_K]:
                 log_wc = obscurity.get_log_wc((self.i_to_ans[j]))
-                #page_count = page_rank.get_log_rank((self.i_to_ans[j]))
-                prev_guess_count = 0
-                #if (self.i_to_ans[j]) in self.previous_guesses:
-                #    prev_guess_count = self.previous_guesses[(self.i_to_ans[j])]
 
-                #obscurity_index = 0
-                #if log_wc:
-                #    obscurity_index += log_wc
-                #if prev_guess_count > 0:
-                #    obscurity_index += np.log(prev_guess_count)
-                #else:
+                c = questions[i].count('.') # this is number of passed sentences
+                
+                if WC_FACTOR_ENABLED and log_wc:
+                    guess_matrix[i,j] += (max([0, c/3.5 - 0.65]) * ALPHA / log_wc)
 
+                if PAGERANK_FACTOR_ENABLED and page_rank.is_min_rank(self.i_to_ans[j]):
+                    guess_matrix[i,j] += (max([0, c/3.5 - 0.65]) * BETA)
 
-                #if log_wc and prev_guess_count > 0:# and page_count:
-                #    obscurity_index = log_wc#(1/3.0) * log_wc + (2/3.0) * np.log(prev_guess_count)
-                #elif log_wc:
-                #    obscurity_index = log_wc
-                #elif prev_guess_count > 0:
-                #    obscurity_index = np.log(prev_guess_count)
-                #else:
-                #   obscurity_index = 1e9
-                if log_wc: #or prev_guess_count > 0:
-                    c = questions[i].count('.')
-                    guess_matrix[i,j] += (max([0, c/3.5 - 0.65])*ALPHA/log_wc)
+                if PREV_OCC_FACTOR_ENABLED and self.previous_guesses[self.i_to_ans[j]]:
+                    guess_matrix[i,j] += (max([0, c/3.5 - 0.65]) * GAMMA)
+                
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
 
         for guess_list in guesses:
