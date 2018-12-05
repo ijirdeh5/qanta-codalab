@@ -1,6 +1,7 @@
 from typing import List, Optional, Tuple
 from collections import defaultdict
 import pickle
+import numpy as np
 import json
 from os import path
 
@@ -79,9 +80,17 @@ class TfidfGuesser:
             for j in idxs[:TOP_K]:
                 log_wc = obscurity.get_log_wc((self.i_to_ans[j]))
                 page_count = page_rank.get_log_rank((self.i_to_ans[j]))
-                if log_wc and page_count:
-                    obscurity_index = (1/2)*log_wc + (1/2)*page_count
-                if log_wc and page_count:
+                prev_guess_count = 0
+                if (self.i_to_ans[j]) in self.previous_guesses:
+                    prev_guess_count = self.previous_guesses[(self.i_to_ans[j])]
+
+                if log_wc and prev_guess_count > 0:# and page_count:
+                    obscurity_index = (1/3.0) * log_wc + (2/3.0) * np.log(prev_guess_count)
+                elif log_wc:
+                    obscurity_index = log_wc
+                elif prev_guess_count > 0:
+                    obscurity_index = np.log(prev_guess_count)
+                if log_wc or prev_guess_count > 0:
                     c = questions[i].count('.')
                     guess_matrix[i,j] += (max([0, c/3.5 - 0.65])*ALPHA/obscurity_index)
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
